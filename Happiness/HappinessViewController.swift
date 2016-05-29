@@ -10,15 +10,6 @@ import UIKit
 
 class HappinessViewController: UIViewController, FaceViewDataSource
 {
-    
-    @IBOutlet weak var faceView: FaceView! {
-        didSet {
-            faceView.datasource = self
-            faceView.addGestureRecognizer(UIPinchGestureRecognizer(target: faceView, action: "scale:"))
-            //faceView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: "changeHappiness"))
-        }
-    }
-    
     var happiness: Int = 100
         { // 0 = super sad face, 100 = crazy happy face
         
@@ -29,7 +20,33 @@ class HappinessViewController: UIViewController, FaceViewDataSource
         }
     }
     
-    private func updateUI() {
+    private struct Constants {
+        static let HappinessGestureScale: CGFloat = 4
+    }
+    
+    @IBAction func changeHappiness(gesture: UIPanGestureRecognizer) {
+        switch gesture.state {
+        case .Ended: fallthrough
+        case .Changed:
+            let translation = gesture.translationInView(faceView)
+            let happinessChange = -Int(translation.y / Constants.HappinessGestureScale)
+            if happinessChange != 0 {
+                happiness += happinessChange
+                gesture.setTranslation(CGPointZero, inView: faceView)
+            }
+        default: break
+        }
+    }
+
+    @IBOutlet weak var faceView: FaceView! {
+        didSet {
+            faceView.datasource = self
+            faceView.addGestureRecognizer(UIPinchGestureRecognizer(target: faceView, action: Selector("scale:")))
+            //faceView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: "changeHappiness"))
+        }
+    }
+    
+        private func updateUI() {
         faceView.setNeedsDisplay()
     }
     
