@@ -8,9 +8,19 @@
 
 import UIKit
 
-class HappinessViewController: UIViewController
+class HappinessViewController: UIViewController, FaceViewDataSource
 {
-    var happiness: Int = 50 { // 0 = sad face, 100 = crazy happy face
+    
+    @IBOutlet weak var faceView: FaceView! {
+        didSet {
+            faceView.datasource = self
+            faceView.addGestureRecognizer(UIPinchGestureRecognizer(target: faceView, action: "scale:"))
+            //faceView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: "changeHappiness"))
+        }
+    }
+    
+    var happiness: Int = 100
+        { // 0 = super sad face, 100 = crazy happy face
         
         didSet {
             happiness = min(max(happiness, 0), 100)
@@ -19,9 +29,11 @@ class HappinessViewController: UIViewController
         }
     }
     
-    func updateUI()
-    {
-        
+    private func updateUI() {
+        faceView.setNeedsDisplay()
     }
     
+    func smilinessForFaceView(sender: FaceView) -> Double? {
+        return Double(happiness - 50) / 50
+    }
 }
